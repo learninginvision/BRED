@@ -1,0 +1,58 @@
+name: AutoDepDAIC
+
+task_description: |
+  Your task is to propose a method to improve automatic depression detection from
+  speech on DAIC-WOZ (Distress Analysis Interview Corpus - Wizard of Oz, the
+  AVEC 2016/2017 depression corpus): clinical interviews conducted by an animated
+  virtual interviewer called Ellie. Each participant has a 16 kHz head-mounted-
+  microphone recording, a time-aligned transcript, and COVAREP / FORMANT acoustic
+  features. The label is PHQ-8 >= 10, a validated depression screening threshold.
+  This task pools all official partitions into one set of 188 usable subjects
+  (56 depressed, 29.8%).
+
+  EVALUATION PROTOCOL (fixed; changing it means changing the task): subject-level
+  stratified 5-fold cross-validation repeated with 5 random seeds on the 188-subject
+  pool, following the "generalization evaluation" of HAREN-CTC (arXiv:2510.08593).
+  All training, hyper-parameter and threshold choices must happen strictly inside
+  each fold's training part (the baseline tunes its threshold on out-of-fold
+  predictions of the training part). The evaluated fold must never influence any
+  choice. Metrics are averaged over folds, then over seeds.
+
+  The provided baseline is a published recipe built from open components: frozen
+  wav2vec 2.0 embeddings + a linear probe (Wu, Zhang & Woodland, ICASSP 2023;
+  Zhang et al., Sci. Rep. 2024). Participant-only audio is cut into 5-second
+  segments, encoded by frozen wav2vec2-base, layer-12 hidden states are averaged
+  over time and over segments into one 768-d vector per subject, then classified
+  with StandardScaler + class-balanced logistic regression. Verified floor on this
+  machine: macro_f1 .561 +/- .025, auc .631 +/- .024. A full 13-layer embedding
+  cache exists, so layer selection / fusion / pooling / head experiments need no
+  re-extraction and run in minutes.
+
+  A negative control is included (code/depaudionet_control.py, do NOT re-run it):
+  DepAudioNet, the most-cited audio baseline of this corpus, scores at chance
+  (macro_f1 .474, auc .467) under this honest protocol. Lesson: the signal lives
+  in the representation, not the architecture; training deep nets from scratch on
+  188 subjects has never beaten chance here.
+
+  TWO HARD RULES, both documented failure modes on this corpus:
+  (1) Use ONLY the participant's own speech. Burdisso et al. (arXiv:2404.14463)
+      showed the interviewer's prompts alone reach F1 0.84-0.88. This leak also
+      lives in timing: turn-gap features that contain Ellie's turns score AUC .60
+      alone. Never use anything derived from Ellie's turns, including gaps and
+      response delays. Pauses INSIDE the participant's own speech are fine.
+  (2) Never fit or select on the evaluated fold. The literature's dev-selection
+      convention inflates scores by ~28% (HAREN-CTC itself: .81 -> .576).
+
+  The primary metric is macro_f1 (higher is better), with auc as the mandatory
+  secondary check. The all-positive degenerate predictor scores only ~.23 macro_f1
+  on this pool; if recall is near 1.0 with precision near .30, you found it.
+  Published honest-protocol anchors: DepAudioNet .533/.566 (their own pipeline),
+  SpeechFormer .533/.557, HAREN-CTC (SOTA, closed-source) .576/.599. Beating
+  .60 macro_f1 would surpass the published state of the art.
+
+  Seed-to-seed std is about .02-.03: treat any improvement below .02 macro_f1 as
+  noise, and require macro_f1 and auc to move together before claiming a win.
+
+domain: Speech Processing / Affective Computing / AI for Mental Health
+
+relative_code_path: resources/baseline/AutoDepDAIC/code

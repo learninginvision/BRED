@@ -1,0 +1,36 @@
+# Chat model for search queries and idea drafting (any OpenAI-compatible endpoint).
+# The paper used deepseek-v4-pro.
+llm:
+  model_name: "deepseek-v4-pro"
+  base_url: "https://api.deepseek.com"
+  api_key: "${DEEPSEEK_API_KEY}"     # read from the environment or .env
+  temperature: 0.7
+  max_tokens: 8192                   # output cap per call
+  timeout: 300
+  extra_body:                        # provider-specific fields sent with every request
+    thinking:
+      type: "disabled"
+
+# Literature search through the arXiv API.
+retrieval:
+  top_k: 10
+  timeout_sec: 30
+
+# Coding agent and experiment execution.
+code_runner:
+  # Interpreter that runs each candidate's experiment.py, e.g. ~/anaconda3/envs/bred/bin/python
+  python: "python"
+  # One running candidate per GPU. [] runs without setting CUDA_VISIBLE_DEVICES.
+  gpus: [0, 1, 2, 3]
+  agent_timeout_sec: 1800            # time limit of one coding-agent session
+  max_turns: 60
+  allowed_tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
+  # Anthropic-compatible endpoint of the coding agent. ANTHROPIC_API_KEY goes in .env.
+  # The paper used MiniMax-M3; the Anthropic API or https://api.deepseek.com/anthropic also work.
+  claude_sdk_env:
+    ANTHROPIC_BASE_URL: "https://api.minimaxi.com/anthropic"
+    ANTHROPIC_MODEL: "MiniMax-M3[1m]"
+    ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M3[1m]"
+    ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M3[1m]"
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M3[1m]"
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: "1000000"

@@ -1,0 +1,14 @@
+name: AutoClsSST
+
+task_description: |
+  Your task is to propose a method to improve text sentiment classification on the
+  SST-2 (Stanford Sentiment Treebank) dataset. The provided baseline fine-tunes a
+  BERT model for binary sentiment classification. You should focus on improving the
+  model design and training recipe. You may draw on how humans understand sentiment
+  from language (negation, contrast, intensity, context), better representation or
+  pooling strategies, regularization, and training objectives. The evaluation metric
+  is classification accuracy on the dev set (best_acc), higher is better.
+
+domain: Natural Language Processing
+
+relative_code_path: resources/baseline/AutoClsSST/code

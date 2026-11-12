@@ -1,0 +1,74 @@
+name: AutoTSF
+
+task_description: |
+  Your task is to propose a time series forecasting method. You need to focus on improving the model design. You may consider improving the model in terms of mining the intrinsic properties of the time series, including periodicity, volatility, multifrequency features, etc. Note that the model input is multivariate time series forecasting data.
+
+domain: ai for time series forecasting
+
+background: |
+  ### 1. **Observations and Initial Hypotheses**
+  **Key Observations & Challenges:**
+  - **Ineffectiveness of Point-wise Attention:** Prior Transformer-based models treated individual time steps as tokens, but single time steps lack semantic meaning (unlike words in NLP), leading to suboptimal attention patterns.
+  - **High Complexity:** Standard Transformers' quadratic complexity with sequence length limited their ability to process long look-back windows effectively.
+  - **Channel-Mixing Limitations:** Existing multivariate forecasting models mixed channel information in input tokens, but this often led to overfitting and insufficient cross-series generalization.
+
+  **Initial Hypotheses:**
+  - **Semantic Patches:** Segmenting time series into **subseries-level patches** (instead of single points) could retain local semantic patterns while reducing token count.
+  - **Channel-Independence:** Treating each channel (time series) independently and sharing Transformer weights across channels could mitigate overfitting and improve generalization.
+
+  **Preliminary Evidence:**
+  - **Patch Inspiration:** Borrowed from CV/NLP (e.g., ViT's image patches) but adapted to time series. Early experiments (Table 1) showed that patching reduced MSE by 8.1% (from 0.397 to 0.367 on Traffic) while cutting training time by up to 22×.
+  - **Channel-Independence Validation:** Ablation studies (Table 7) revealed channel-independent models outperformed channel-mixing variants (e.g., 0.367 vs. 0.595 MSE on Traffic), aligning with findings from linear models like DLinear.
+
+  ---
+
+  ### 2. **Methodological Reasoning and Evolution**
+  **Stepwise Refinement:**
+  1. **Patching Design:**
+     - **Formalization:** Given a univariate series \( x^{(i)}_{1:L} \), divide it into \( N \) patches with patch length \( P \) and stride \( S \):
+       \[
+       N = \left\lfloor \frac{L - P}{S} \right\rfloor + 2 \quad \text{(with padding)}
+       \]
+       This reduces token count \( N \approx L/S \), lowering attention complexity from \( O(L^2) \) to \( O((L/S)^2) \).
+     - **Experimental Validation:** Longer look-back windows (e.g., \( L=336 \)) with patching improved forecasting accuracy (Table 1: MSE 0.367 vs. 0.447 for downsampled L=380).
+
+  2. **Channel-Independence Architecture:**
+     - **Hypothesis:** Cross-channel correlations could be indirectly learned via shared weights, avoiding noise amplification from irrelevant channels.
+     - **Implementation:** Each channel's patches are processed independently through the same Transformer backbone (Figure 1a).
+     - **Ablation Evidence:** Channel-independence reduced overfitting (Figure 7) and enabled adaptability in attention patterns across series (Figure 6).
+
+  3. **Self-Supervised Pre-training:**
+     - **Masked Autoencoding:** Inspired by BERT and MAE, 40% of non-overlapping patches were masked, and the model reconstructed them.
+     - **Transfer Learning:** Pre-trained models on large datasets (e.g., Electricity) achieved SOTA when fine-tuned on smaller datasets (Table 5), demonstrating robust representation learning.
+
+  **Key Equations:**
+  - **Patch Embedding:**
+    \[
+    \mathbf{x}^{(i)}_d = \mathbf{W}_p \mathbf{x}^{(i)}_p + \mathbf{W}_{pos}
+    \]
+    where \( \mathbf{W}_p \in \mathbb{R}^{D \times P} \) projects patches to embeddings, and \( \mathbf{W}_{pos} \) adds positional encoding.
+  - **Multi-Head Attention:**
+    \[
+    \text{Attention}(\mathbf{Q}_h, \mathbf{K}_h, \mathbf{V}_h) = \text{Softmax}\left(\frac{\mathbf{Q}_h \mathbf{K}_h^T}{\sqrt{d_k}}\right) \mathbf{V}_h
+    \]
+    Computed independently for each channel.
+
+  ---
+
+  ### 3. **Insights, Interpretations, and Future Directions**
+  **Key Interpretations:**
+  - **Longer Context Matters:** Increasing look-back window \( L \) with patching (e.g., \( L=336 \)) consistently improved forecasting (Figure 2), debunking prior beliefs that Transformers struggle with long sequences.
+  - **Channel-Independence > Channel-Mixing:** Independent processing allowed per-series attention specialization (Figure 6), while mixing introduced noise (Table 15: CI improved FEDformer's MSE by 15%).
+
+  **Notable Phenomena:**
+  - **Self-Supervised Superiority:** Masked pre-training outperformed supervised training on large datasets (Table 4: 0.349 vs. 0.367 MSE on Traffic), suggesting that Transformers excel at learning temporal abstractions.
+  - **Efficiency Gains:** Patching reduced compute/memory by a factor of \( S^2 \), enabling training on long sequences (Table 1: 22× speedup on Traffic).
+
+  **Future Directions:**
+  - **Cross-Channel Dependency Modeling:** While channel-independence worked well, explicitly modeling cross-series correlations (e.g., via graph networks) could further enhance performance.
+  - **Foundation Model Potential:** The authors posit PatchTST as a building block for time series foundation models, given its transfer learning capabilities.
+
+  **Impact of Logical Progression:**
+  The authors systematically addressed Transformer limitations in time series by rethinking tokenization (patching) and multivariate handling (channel-independence). Their ablation studies (Tables 7, 10) and cross-dataset transfer experiments (Table 5) provided robust validation, shifting the narrative from "Transformers are ineffective" to "Transformers need tailored designs." This work redefines best practices for temporal modeling, emphasizing locality and weight-sharing over handcrafted attention sparsity.
+
+relative_code_path: resources/baseline/AutoTSF/code

@@ -1,0 +1,24 @@
+# Python 3.11
+
+# ---- the loop ----
+openai>=1.40
+claude-agent-sdk==0.2.116      # coding agent; bundles the Claude Code CLI
+PyYAML>=6.0
+python-dotenv>=1.0
+requests>=2.31
+
+# ---- baseline code of the four tasks ----
+torch==2.9.0
+torchvision==0.24.0
+transformers==5.5.3
+numpy==2.2.0
+pandas==2.3.3
+scikit-learn==1.7.2
+librosa==0.11.0
+matplotlib==3.10.7
+tensorboard==2.20.0            # imported by AutoTSF's experiment.py
+tqdm==4.67.1
+huggingface_hub>=1.0           # downloading encoder weights
+
+# ---- tests ----
+pytest>=8

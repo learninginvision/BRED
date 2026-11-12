@@ -1,0 +1,12 @@
+code_timeout: 7200            # seconds per experiment run
+
+metrics_format:               # keys and types expected in metrics.json
+  mae: float
+  mse: float
+
+experiment_metric: |
+  The experiment is evaluated by MAE and MSE, so the code must write both values.
+
+metric_explanation:
+  primary: mae
+  higher_better: false

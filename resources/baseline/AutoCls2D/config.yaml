@@ -1,0 +1,81 @@
+name: AutoCls2D
+
+task_description: |
+  You are given the following file to work with, that trains the 2D image classification network on Cifar100. You need to focus on improving the model design. You can refer to advanced image classification networks, refer to the ways humans understand 2D images, etc.
+
+domain: image classification
+
+background: |
+  #### 1. **Observations and Initial Hypotheses**
+  **Key Challenges and Motivations**
+  The authors identified two critical limitations of traditional deep residual networks (ResNets):
+  1. **Depth vs. Efficiency Trade-off**: Extremely deep ResNets (e.g., 1,000 layers) suffer from **diminishing feature reuse**, where gradients fail to propagate effectively through numerous layers, leading to slow training and suboptimal parameter utilization.
+  2. **Thin vs. Wide Architectures**: Prior ResNet designs prioritized depth over width, using "thin" blocks (e.g., bottleneck structures) to reduce computational costs. However, this approach neglected the potential benefits of wider layers for parallel computation and feature richness.
+
+  **Initial Hypotheses**
+  The authors conjectured that:
+  - **Wider residual blocks** (with more feature maps per layer) could enhance representational power while maintaining computational efficiency on GPUs.
+  - **Dropout**, strategically placed within residual blocks, could mitigate overfitting in wider architectures without harming gradient flow.
+  - A balanced **depth-width ratio** might outperform extremely deep but thin networks, especially in terms of training speed and accuracy.
+
+  **Preliminary Evidence**
+  Prior work on residual networks (e.g., He et al., 2016) demonstrated that residual blocks with identity mappings enabled training of very deep networks. However, experiments in stochastic depth (Huang et al., 2016) suggested that many layers contributed minimally, implying redundancy. The authors hypothesized that widening blocks could force features to propagate through more parameters, addressing the "diminishing reuse" problem.
+
+  ---
+
+  #### 2. **Methodological Reasoning and Evolution**
+  **Stepwise Refinement of Architectures**
+  The authors systematically explored variations of residual blocks and training strategies:
+
+  **a. Block Structure Experiments**
+  - **Convolutional Layer Types**: Tested combinations of 3×3 and 1×1 convolutions (e.g., B(3,3), B(3,1,3), B(1,3)) to balance representational power and computational cost.
+    - Key Finding: The basic **B(3,3)** block (two 3×3 convolutions) outperformed alternatives (Table 2), likely due to its balance of non-linearity and parameter efficiency.
+  - **Deepening vs. Widening**: Varied the number of convolutions per block (\(l\)) and the widening factor (\(k\)) while keeping total parameters constant.
+    - Result: Increasing \(k\) (width) consistently improved accuracy, while deepening \(l\) beyond 2 layers degraded performance (Table 3).
+
+  **b. Width-Depth Trade-off**
+  - **WRN Notation**: Introduced **WRN-\(n\)-\(k\)**, where \(n\) = total layers and \(k\) = widening factor.
+    - Example: WRN-40-4 (40 layers, \(k=4\)) achieved **4.53% error** on CIFAR-10, outperforming ResNet-1001 (4.64%) with 8× faster training (Figure 4).
+    - Critical Insight: Wider networks (e.g., WRN-28-10) matched or exceeded the accuracy of 1,000-layer ResNets while using 50× fewer layers (Table 5).
+
+  **c. Dropout Integration**
+  - **Placement**: Inserted dropout **between convolutions** (Figure 1d) rather than in identity paths, avoiding disruption of gradient flow.
+    - Effect: Reduced overfitting on SVHN (1.64% error vs. 1.85% without dropout) and improved CIFAR-100 performance by 0.4% (Table 6).
+    - Formula: For a residual block with dropout:
+      \[
+      x_{l+1} = x_l + \text{Dropout}(F(x_l, W_l))
+      \]
+      where \(F\) represents the block's convolutional operations.
+
+  **d. ImageNet and COCO Adaptation**
+  - **Bottleneck vs. Wide Blocks**: On ImageNet, widening ResNet-50's inner layers (WRN-50-2-bottleneck) achieved **21.9% top-1 error**, surpassing ResNet-152 (22.16%) with fewer layers (Table 8).
+  - **COCO Detection**: WRN-34-2 achieved state-of-the-art object detection (35.2 mAP), demonstrating scalability to complex tasks.
+
+  **Logical Progression**
+  The authors iteratively refined their approach:
+  1. **Hypothesis Testing**: Initial experiments on CIFAR/SVHN validated the superiority of width over depth.
+  2. **Architectural Optimization**: Systematic ablation studies (e.g., block types, dropout placement) identified optimal configurations.
+  3. **Generalization**: Validated findings on large-scale datasets (ImageNet, COCO), proving broader applicability.
+
+  ---
+
+  #### 3. **Insights, Interpretations, and Future Directions**
+  **Key Interpretations**
+  - **Width > Depth**: Residual networks derive their power primarily from residual blocks, not extreme depth. Wider blocks enable efficient feature reuse and GPU parallelism.
+  - **Dropout as Regularizer**: Strategic dropout placement combats overfitting in wide networks without harming batch normalization.
+  - **Efficiency Gains**: Wide ResNets achieve **8× speedup** over thin counterparts (Figure 4), challenging the notion that depth is essential for regularization.
+
+  **Notable Results**
+  - **CIFAR-10**: WRN-28-10 achieved **3.8% error** (Table 9), surpassing ResNet-1001 (4.64%).
+  - **SVHN**: WRN-16-8 with dropout reached **1.54% error**, the best result at the time.
+  - **COCO**: Demonstrated that even shallow WRNs (34 layers) outperform deeper models in detection tasks.
+
+  **Future Directions**
+  - **Automated Architecture Search**: Combining width-depth optimization with NAS techniques.
+  - **Advanced Regularization**: Exploring dropout variants (e.g., spatial dropout) for wider networks.
+  - **Theoretical Analysis**: Formalizing the relationship between feature reuse, width, and gradient dynamics.
+
+  **Impact of Logical Reasoning**
+  The authors' systematic ablation studies and cross-dataset validation provided robust evidence for their claims. By rigorously testing hypotheses (e.g., block structures, dropout placement) and quantifying computational trade-offs, they redefined the design principles for residual networks, emphasizing width as a critical lever for efficiency and performance. This work shifted the community's focus from "deeper is better" to a balanced depth-width paradigm, influencing subsequent architectures like EfficientNet.
+
+relative_code_path: resources/baseline/AutoCls2D/code

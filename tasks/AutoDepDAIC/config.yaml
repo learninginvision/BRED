@@ -1,0 +1,30 @@
+code_timeout: 14400           # seconds per experiment run
+
+metrics_format:               # keys and types expected in metrics.json
+  macro_f1: float
+  auc: float
+
+experiment_metric: |
+  The primary metric is macro_f1: subject-level stratified 5-fold cross-validation over the 188
+  pooled subjects (train + dev + test, 56 depressed) with 5 random seeds, averaged over folds and
+  then over seeds. The auxiliary metric auc is computed the same way and must also be written.
+  The evaluation protocol is fixed (changing it changes the task): all training, tuning and
+  threshold selection must happen inside the training part of each fold (for example, tune the
+  threshold on out-of-fold predictions of the training folds); the evaluated fold must stay
+  completely unseen. Do not select a model on the official dev split and then report dev: that
+  inflates the score by about 28% (the literature SOTA itself reports .81 -> .576).
+  Why macro_f1: 29.8% of the 188 subjects are depressed. The trivial "all depressed" solution
+  scores only about .23 macro_f1 and is correctly penalised, while the depressed-class F1 alone
+  would reward it. auc does not depend on a threshold and separates "the ranking really improved"
+  from "the threshold happened to move".
+  Besides the primary metric, also write uar / macro_precision / f1 (depressed class) / f1_nondep /
+  precision / recall / accuracy, each with its _std (standard deviation over seeds), to judge
+  whether a gain exceeds the noise: the seed std is about .02-.03, so a macro_f1 gain below 0.02
+  is noise.
+  Reference points under this protocol: baseline probe macro_f1 .561 +- .025 / auc .631 +- .024;
+  DepAudioNet negative control .474 +- .033 / .467 +- .045 (chance level); literature SOTA
+  HAREN-CTC .576 +- .02 / .599 +- .02 (code not released).
+
+metric_explanation:
+  primary: macro_f1
+  higher_better: true

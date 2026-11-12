@@ -1,0 +1,11 @@
+code_timeout: 46800           # seconds per experiment run
+
+metrics_format:               # keys and types expected in metrics.json
+  best_acc: float
+
+experiment_metric: |
+  The experiment is evaluated by best_acc, so the code must write this value.
+
+metric_explanation:
+  primary: best_acc
+  higher_better: true
