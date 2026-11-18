@@ -4,6 +4,7 @@
 
 ### The Between-Round Decision in Autonomous Research:<br>An LLM Controller That Reads the Whole Trajectory
 
+[![arXiv](https://img.shields.io/badge/arXiv-2611.22661-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.22661)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Claude Agent SDK](https://img.shields.io/badge/coding%20agent-Claude%20Agent%20SDK-D97757)](https://github.com/anthropics/claude-agent-sdk-python)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -15,6 +16,8 @@
 自主科研系统每做完一轮实验，都要决定下一步：继续精修当前最好的方案还是换个方向，从哪个方案出发，
 这一轮定什么目标。**BRED**（Between-Round Evidence-based Decision）**每轮只用一次 LLM 调用**做这个
 决策，读取两个持久对象：**Champion**（迄今最好的已验证方案）和记录每一轮的**日志**。
+
+论文：[arXiv:2611.22661](https://arxiv.org/abs/2611.22661)（[PDF](https://arxiv.org/pdf/2611.22661)）。
 
 > [!NOTE]
 > 本仓库是 BRED 循环的**简化参考实现**：控制器是固定日程，文献检索、idea 生成和代码 agent 都简化为
@@ -40,7 +43,7 @@
 
 ## 结果
 
-论文报告的结果：最终 Champion 的最佳已验证指标，按基准的报告惯例给出。
+[论文](https://arxiv.org/abs/2611.22661)报告的结果：最终 Champion 的最佳已验证指标，按基准的报告惯例给出。
 
 | 任务（数据集） | 指标 | Baseline | Dolphin | InternAgent<br>（论文报告） | InternAgent<br>（复跑†） | **BRED** |
 |---|---|---:|---:|---:|---:|---:|
@@ -192,6 +195,22 @@ storage/runs/{Task}/{run_name}/          # run_name 默认为时间戳
 可以。`llm` 接受任何 OpenAI 兼容端点；代码 agent 通过 `code_runner.claude_sdk_env` 接受任何
 Anthropic 兼容端点。
 </details>
+
+## 引用
+
+如果 BRED 对你的研究有帮助，请引用论文：
+
+```bibtex
+@misc{wang2026bred,
+  title         = {The Between-Round Decision in Autonomous Research: An {LLM} Controller That Reads the Whole Trajectory},
+  author        = {Wang, Caoxin and Gan, Shengkai and Hu, Xiang and Pan, Lili},
+  year          = {2026},
+  eprint        = {2611.22661},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.22661}
+}
+```
 
 ## 致谢
 

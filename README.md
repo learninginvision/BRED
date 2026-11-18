@@ -4,6 +4,7 @@
 
 ### The Between-Round Decision in Autonomous Research:<br>An LLM Controller That Reads the Whole Trajectory
 
+[![arXiv](https://img.shields.io/badge/arXiv-2611.22661-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.22661)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Claude Agent SDK](https://img.shields.io/badge/coding%20agent-Claude%20Agent%20SDK-D97757)](https://github.com/anthropics/claude-agent-sdk-python)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -17,6 +18,9 @@ refine the best solution so far or start a new direction, which solution to buil
 goal to set. **BRED** (Between-Round Evidence-based Decision) makes this decision with **one LLM call
 per round**, reading two persistent objects: the **Champion**, the best verified solution so far, and
 a **log** of every past round.
+
+Paper: [arXiv:2611.22661](https://arxiv.org/abs/2611.22661)
+([PDF](https://arxiv.org/pdf/2611.22661)).
 
 > [!NOTE]
 > This repository is a **simplified reference implementation** of the BRED loop. The controller is
@@ -49,8 +53,8 @@ and the round is appended to the log.
 
 ## Results
 
-Reported in the paper: the best verified metric of the final Champion, following the benchmark's
-reporting convention.
+Reported in [the paper](https://arxiv.org/abs/2611.22661): the best verified metric of the final
+Champion, following the benchmark's reporting convention.
 
 | Task (dataset) | Metric | Baseline | Dolphin | InternAgent<br>(published) | InternAgent<br>(re-run†) | **BRED** |
 |---|---|---:|---:|---:|---:|---:|
@@ -208,6 +212,22 @@ code), a wrong `code_runner.python`, or missing task data.
 Yes. The `llm` section takes any OpenAI-compatible endpoint, and the coding agent takes any
 Anthropic-compatible endpoint through `code_runner.claude_sdk_env`.
 </details>
+
+## Citation
+
+If you use BRED in your research, please cite the paper:
+
+```bibtex
+@misc{wang2026bred,
+  title         = {The Between-Round Decision in Autonomous Research: An {LLM} Controller That Reads the Whole Trajectory},
+  author        = {Wang, Caoxin and Gan, Shengkai and Hu, Xiang and Pan, Lili},
+  year          = {2026},
+  eprint        = {2611.22661},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.22661}
+}
+```
 
 ## Acknowledgements
 
